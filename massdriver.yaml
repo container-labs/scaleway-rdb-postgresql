@@ -1,0 +1,145 @@
+# This file will be used to generate all of the schema-*.json files in a bundle
+schema: draft-07
+name: "scw-rdb-postgres"
+description: ""
+source_url: github.com/YOUR_NAME_HERE/scw-rdb-postgres
+access: "public"
+type: "infrastructure"
+
+# schema-params.json
+# JSON Schema sans-fields above
+params:
+  # Examples will show up as configuration presets in the UI _and_
+  # they will be used to test configurations of the bundle.
+  examples:
+    - __name: Development
+      node_type: DB-DEV-S
+      cluster_mode: standalone
+    - __name: Production
+      node_type: DB-GP-XS
+      cluster_mode: highly-available
+  required:
+    - postgres_version
+    - node_type
+    - cluster_mode
+    - backups
+  properties:
+    postgres_version:
+      type: string
+      title: Version
+      description: ""
+      default: PostgreSQL-14
+      oneOf:
+        - const: PostgreSQL-12
+          title: "PostgreSQL 12"
+        - const: PostgreSQL-13
+          title: "PostgreSQL 13"
+        - const: PostgreSQL-14
+          title: "PostgreSQL 14"
+    node_type:
+      type: string
+      title: Node Type
+      description: ""
+      default: DB-DEV-S
+      oneOf:
+        - const: DB-DEV-S
+          title: "2 vCPUs, 2 GB RAM"
+        - const: DB-DEV-M
+          title: "3 vCPUs, 4 GB RAM"
+        - const: DB-DEV-L
+          title: "4 vCPUs, 8 GB RAM"
+        - const: DB-DEV-XL
+          title: "4 vCPUs, 12 GB RAM"
+        - const: DB-GP-XS
+          title: "4 vCPUs, 16 GB RAM"
+        - const: DB-GP-S
+          title: "8 vCPUs, 32 GB RAM"
+        - const: DB-GP-M
+          title: "16 vCPUs, 64 GB RAM"
+        - const: DB-GP-L
+          title: "32 vCPUs, 128 GB RAM"
+        - const: DB-GP-XL
+          title: "48 vCPUs, 256 GB RAM"
+    cluster_mode:
+      type: string
+      title: Cluster Mode
+      description: "Highly available creates a secondary node with an up-to-date replica of the Database Instance. If the primary node fails, the secondary one will take over requests, reducing downtime."
+      default: standalone
+      oneOf:
+        - const: standalone
+          title: "Standalone"
+        - const: highly-available
+          title: "Highly Available"
+    backups:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+          description: "Enable backups for this Database Instance."
+          default: false
+      dependencies:
+        oneOf:
+          - properties:
+              enabled:
+                const: true
+              frequency_hours:
+                type: integer
+                title: Frequency
+                default: 24
+                # TODO: check
+                minimum: 1
+                maximum: 100
+              retention_days:
+                type: integer
+                title: Retention Days
+                description: "Number of days to keep backups for."
+                default: 7
+                # TODO: check
+                minimum: 1
+                maximum: 30
+            required:
+              - frequency_hours
+              - retention_days
+          - properties:
+              enabled:
+                const: false
+
+# schema-connections.json
+# Named list of input connections (artifacts) (map[name]artifact)
+
+connections:
+  required:
+    - scw_authentication
+    - network
+  properties:
+    # TODO: add artifact for scw-api-key
+    # scw_authentication:
+    #   $ref: massdriver/scw-api-key
+    scw_authentication:
+      $ref: massdriver/gcp-service-account
+    # TODO: add artifact for scw-vpc
+    # network:
+    #   $ref: massdriver/scw-vpc
+    network:
+      $ref: massdriver/gcp-global-network
+
+
+# schema-artifacts.json
+# Named list of output artifacts  (map[name]artifact)
+artifacts:
+  required:
+    - authentication
+  properties:
+    authentication:
+      $ref: massdriver/postgresql-authentication
+
+# schema-ui.json
+# List of form customizations for params-schema
+ui:
+  ui:order:
+    - postgres_version
+    - node_type
+    - cluster_mode
+    - backups
+    - "*"
