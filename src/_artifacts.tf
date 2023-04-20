@@ -1,13 +1,13 @@
 locals {
   data_authentication = {
-    hostname = scaleway_rdb_instance.main.private_network[0].ip
-    username = "root"
-    password = random_password.root_user_password.result
-    port     = scaleway_rdb_instance.main.private_network[0].port
+    username = module.database_postgresql.username
+    password = module.database_postgresql.password
+    hostname = module.database_postgresql.hostname
+    port     = module.database_postgresql.port
   }
 
   data_infrastructure = {
-    id = scaleway_rdb_instance.main.id
+    id = module.database_postgresql.id
   }
 
   data_security = {
@@ -33,14 +33,9 @@ locals {
   }
 }
 
-output "pass" {
-  value     = random_password.root_user_password.result
-  sensitive = true
-}
-
 resource "massdriver_artifact" "authentication" {
   field                = "authentication"
-  provider_resource_id = scaleway_rdb_instance.main.id
-  name                 = "a contextual name for the artifact"
+  provider_resource_id = module.database_postgresql.id
+  name                 = "Scaleway PostgreSQL Instance"
   artifact             = jsonencode(local.artifact)
 }
