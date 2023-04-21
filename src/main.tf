@@ -4,7 +4,7 @@ module "database_postgresql" {
   name               = var.md_metadata.name_prefix
   tags               = var.md_metadata.default_tags
   private_network_id = var.network.data.infrastructure.id
-  region             = var.network.specs.scw.region
+  region             = var.network.specs.scaleway.region
   node_type          = var.node_type
   postgres_version   = var.postgres_version
   cluster_mode       = var.cluster_mode

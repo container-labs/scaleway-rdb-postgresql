@@ -1,8 +1,8 @@
 # This file will be used to generate all of the schema-*.json files in a bundle
 schema: draft-07
-name: "scw-rdb-postgres"
-description: ""
-source_url: github.com/YOUR_NAME_HERE/scw-rdb-postgres
+name: "scaleway-rdb-postgres"
+description: "Scaleway RDB PostgreSQL"
+source_url: github.com/container-labs/scaleway-rdb-postgresql
 access: "public"
 type: "infrastructure"
 
